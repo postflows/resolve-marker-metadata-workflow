@@ -9,8 +9,8 @@ Collect markers from the active timeline, gather clip metadata from the Media Po
 ## Features
 
 - **Two marker sources** — choose between Clip Markers or Timeline Markers
-- **Full metadata export** — all available `GetClipProperty()` fields are collected dynamically from the clips on the timeline and presented as selectable columns
 - **Selective field export** — a tree view lets you check or uncheck individual fields across three groups: Marker Fields, Clip Info, and Clip Metadata
+- **Smart field filtering** — only metadata fields that contain actual data in at least one clip on the timeline are shown in the field tree; fields that are empty across all clips are excluded automatically, keeping the tree and the resulting CSV clean
 - **Optional stills export** — captures a gallery still at each marker position and exports it to a `stills/` subfolder; filenames are automatically matched back to CSV rows via timecode
 - **Still columns in CSV** — when stills export is enabled, two columns are added: `Still Filename` (for portability) and `Still Path` (absolute path, for automation)
 - **Isolated gallery album** — stills are captured into a new dedicated album (`Marker Export YYYYMMDD_HHMMSS`) so your existing grading albums are never touched

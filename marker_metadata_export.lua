@@ -196,7 +196,8 @@ end
 -- ─── Ключи метаданных клипов ──────────────────────────────────────────────────
 
 local function gather_all_clip_meta_keys()
-    local keys_set = {}
+    -- Only include keys that have non-empty data in at least one clip on the timeline
+    local keys_with_data = {}
     local tc = timeline:GetTrackCount("video")
     for tr = 1, tc do
         local items = timeline:GetItemListInTrack("video", tr)
@@ -204,13 +205,19 @@ local function gather_all_clip_meta_keys()
             for _, item in ipairs(items) do
                 local mp = item:GetMediaPoolItem()
                 if mp then
-                    for k in pairs(mp:GetClipProperty() or {}) do keys_set[k] = true end
+                    local props = mp:GetClipProperty() or {}
+                    for k, v in pairs(props) do
+                        local s = tostring(v or ""):match("^%s*(.-)%s*$")
+                        if s ~= "" and s ~= "0" then
+                            keys_with_data[k] = true
+                        end
+                    end
                 end
             end
         end
     end
     local keys = {}
-    for k in pairs(keys_set) do table.insert(keys, k) end
+    for k in pairs(keys_with_data) do table.insert(keys, k) end
     table.sort(keys)
     return keys
 end
