@@ -52,6 +52,7 @@ Collect markers from the active timeline, gather clip metadata from the Media Po
 
 ## Requirements
 
+- **DaVinci Resolve Studio** — this script uses a graphical interface (Fusion UIManager). Scripts with UI run only in DaVinci Resolve Studio; the free version does not support UI-based scripting.
 - DaVinci Resolve 20 (tested on 20.x only; earlier versions not verified)
 - Open project and timeline
 
@@ -113,6 +114,7 @@ Stills export and CSV linking rely on timecode-based filenames. The following se
 
 ## Compatibility
 
+- **DaVinci Resolve Studio only** — the free version (DaVinci Resolve) does not support scripts with a graphical interface.
 - DaVinci Resolve Studio 20 (tested on 20.x only; earlier versions not verified)
 - macOS and Windows
 - Linux: untested, but should work if `libavutil.so` is present
