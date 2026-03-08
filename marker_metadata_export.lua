@@ -431,6 +431,58 @@ local function write_csv(rows, filtered_fixed, include_clip_name, meta_fields,
     return true, nil
 end
 
+-- ─── Marker colors (filter) ───────────────────────────────────────────────────
+
+local function get_used_marker_colors(marker_type)
+    local colors_set = {}
+    if marker_type == "Timeline Markers" then
+        for _, m in pairs(timeline:GetMarkers() or {}) do
+            if m.color and m.color ~= "" then colors_set[m.color] = true end
+        end
+    else
+        local tc = timeline:GetTrackCount("video")
+        for tr = 1, tc do
+            local items = timeline:GetItemListInTrack("video", tr)
+            if items then
+                for _, item in ipairs(items) do
+                    for _, m in pairs(item:GetMarkers() or {}) do
+                        if m.color and m.color ~= "" then colors_set[m.color] = true end
+                    end
+                end
+            end
+        end
+    end
+    local colors = {}
+    for c in pairs(colors_set) do table.insert(colors, c) end
+    table.sort(colors)
+    return colors
+end
+
+local function count_markers(marker_type, color_filter)
+    local count = 0
+    local function matches(m)
+        return color_filter == "All Colors" or m.color == color_filter
+    end
+    if marker_type == "Timeline Markers" then
+        for _, m in pairs(timeline:GetMarkers() or {}) do
+            if matches(m) then count = count + 1 end
+        end
+    else
+        local tc = timeline:GetTrackCount("video")
+        for tr = 1, tc do
+            local items = timeline:GetItemListInTrack("video", tr)
+            if items then
+                for _, item in ipairs(items) do
+                    for _, m in pairs(item:GetMarkers() or {}) do
+                        if matches(m) then count = count + 1 end
+                    end
+                end
+            end
+        end
+    end
+    return count
+end
+
 -- ─── Форматы стиллов ─────────────────────────────────────────────────────────
 
 local STILL_FORMATS = { "jpg", "png", "tif", "dpx", "cin", "bmp" }
@@ -457,9 +509,22 @@ local win = disp:AddWindow({
                 TEXT_COLOR)
         },
 
-        -- Тип маркеров
+        -- Marker source and color filter
         ui:Label{ Weight = 0, Text = "Marker Source", StyleSheet = SECTION },
         ui:ComboBox{ ID = "MarkerType", Weight = 0, StyleSheet = COMBO },
+        ui:HGroup{
+            Weight = 0,
+            ui:Label{ Weight = 0, Text = "Color filter:", StyleSheet = STATUS },
+            ui:HGap(6),
+            ui:ComboBox{ ID = "ColorFilter", Weight = 1, StyleSheet = COMBO },
+        },
+        ui:Label{
+            ID         = "MarkerCount",
+            Weight     = 0,
+            Text       = "",
+            Alignment  = { AlignLeft = true },
+            StyleSheet = STATUS,
+        },
 
         ui:VGap(4),
 
@@ -563,6 +628,38 @@ itm.MarkerType:AddItem("Timeline Markers")
 
 for _, fmt in ipairs(STILL_FORMATS) do itm.StillFormat:AddItem(fmt) end
 
+-- Populate ColorFilter and update marker count
+local function refresh_color_filter()
+    local marker_type = itm.MarkerType.CurrentText
+    local prev_color  = itm.ColorFilter.CurrentText
+
+    itm.ColorFilter:Clear()
+    itm.ColorFilter:AddItem("All Colors")
+    local colors = get_used_marker_colors(marker_type)
+    for _, c in ipairs(colors) do itm.ColorFilter:AddItem(c) end
+
+    itm.ColorFilter.CurrentText = prev_color
+    if itm.ColorFilter.CurrentText ~= prev_color then
+        itm.ColorFilter.CurrentIndex = 0
+    end
+end
+
+local function update_marker_count()
+    local marker_type  = itm.MarkerType.CurrentText
+    local color_filter = itm.ColorFilter.CurrentText or "All Colors"
+    local count = count_markers(marker_type, color_filter)
+    if count == 0 then
+        itm.MarkerCount.Text = "No markers found"
+    elseif color_filter == "All Colors" then
+        itm.MarkerCount.Text = string.format("Found: %d marker%s", count, count == 1 and "" or "s")
+    else
+        itm.MarkerCount.Text = string.format("Found: %d %s marker%s", count, color_filter, count == 1 and "" or "s")
+    end
+end
+
+refresh_color_filter()
+update_marker_count()
+
 -- ─── Дерево полей ─────────────────────────────────────────────────────────────
 
 itm.FieldTree:SetColumnCount(1)
@@ -646,6 +743,15 @@ end
 
 -- ─── Обработчики событий ─────────────────────────────────────────────────────
 
+win.On.MarkerType.CurrentIndexChanged = function()
+    refresh_color_filter()
+    update_marker_count()
+end
+
+win.On.ColorFilter.CurrentIndexChanged = function()
+    update_marker_count()
+end
+
 win.On.BrowseBtn.Clicked = function()
     local selected = tostring(fu:RequestDir(itm.OutputPath.Text or get_desktop_path()))
     if selected and selected ~= "" and selected ~= "nil" then
@@ -710,8 +816,20 @@ win.On.Export.Clicked = function()
         rows = collect_clip_markers(fps_str, drop, start_frame)
     end
 
+    -- Apply color filter
+    local color_filter = itm.ColorFilter.CurrentText or "All Colors"
+    if color_filter ~= "All Colors" then
+        local filtered = {}
+        for _, row in ipairs(rows) do
+            if row["Marker Color"] == color_filter then
+                table.insert(filtered, row)
+            end
+        end
+        rows = filtered
+    end
+
     if #rows == 0 then
-        itm.Status.Text = "⚠ No markers found on this timeline."
+        itm.Status.Text = "⚠ No markers found for selected filter."
         return
     end
 
