@@ -52,7 +52,7 @@ Collect markers from the active timeline, gather clip metadata from the Media Po
 
 ## Requirements
 
-- DaVinci Resolve 18 or later
+- DaVinci Resolve 20 (tested on 20.x only; earlier versions not verified)
 - Open project and timeline
 
 ---
@@ -113,7 +113,7 @@ Stills export and CSV linking rely on timecode-based filenames. The following se
 
 ## Compatibility
 
-- DaVinci Resolve Studio 18 or later (tested on 18.x and 19.x)
+- DaVinci Resolve Studio 20 (tested on 20.x only; earlier versions not verified)
 - macOS and Windows
 - Linux: untested, but should work if `libavutil.so` is present
 
