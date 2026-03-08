@@ -16,6 +16,7 @@
       [Выбранная папка]/
       └── [ProjectName]_[TimelineName]_[YYYYMMDD_HHMMSS]/
           ├── markers_[YYYYMMDD_HHMMSS].csv
+          ├── viewer.html          (copy of marker_metadata_viewer.html for browser review)
           └── stills/
               ├── 01.00.28.04_2.1.1.jpg
               └── ...
@@ -857,6 +858,24 @@ win.On.Export.Clicked = function()
     if not ok then
         itm.Status.Text = "⚠ CSV error: " .. tostring(err)
         return
+    end
+
+    -- Copy HTML viewer into export folder for convenient review in browser
+    local script_dir = debug.getinfo(1, "S").source:match([[^.*@(.*[/\])]]) or ""
+    local viewer_src = script_dir .. "marker_metadata_viewer.html"
+    local viewer_dst = export_dir .. "/viewer.html"
+    local src_file = io.open(viewer_src, "r")
+    if src_file then
+        local html = src_file:read("*a")
+        src_file:close()
+        local dst_file = io.open(viewer_dst, "w")
+        if dst_file then
+            dst_file:write(html)
+            dst_file:close()
+            print("[INFO] viewer.html copied to export folder")
+        end
+    else
+        print("[WARN] marker_metadata_viewer.html not found next to script — viewer not copied")
     end
 
     itm.Status.Text = string.format("✓ Done! %d rows → %s", #rows, export_dir)

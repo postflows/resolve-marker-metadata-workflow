@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marker Sheet</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap');
+
+  :root {
+    --thumb-w:   160px;
+    --thumb-h:   90px;
+    --bg:        #0e0e0f;
+    --bg2:       #161618;
+    --bg3:       #1e1e21;
+    --bg4:       #26262a;
+    --border:    #2e2e33;
+    --border2:   #3a3a40;
+    --text:      #e8e8ea;
+    --text2:     #9090a0;
+    --text3:     #55555f;
+    --accent:    #4c7eff;
+    --accent2:   #2a4fcc;
+    --green:     #2ecc71;
+    --yellow:    #f0b429;
+    --red:       #e05555;
+    --mono:      'IBM Plex Mono', monospace;
+    --sans:      'IBM Plex Sans', sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    color: var(--text2);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .logo span { color: var(--accent); }
+
+  .header-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 300px;
+  }
+
+  .header-meta {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  .header-spacer { flex: 1; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 0 14px;
+    height: 32px;
+    border-radius: 4px;
+    font-family: var(--sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background 0.15s, opacity 0.15s;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-ghost {
+    background: var(--bg4);
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { background: var(--border2); color: var(--text); }
+
+  /* ── TOOLBAR ── */
+  .toolbar {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 180px;
+    max-width: 320px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text3);
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 12px;
+    padding: 6px 10px 6px 32px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-input:focus { border-color: var(--accent); }
+  .search-input::placeholder { color: var(--text3); }
+
+  /* Color filter pills */
+  .color-filters {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .color-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.15s;
+    background: var(--bg4);
+    color: var(--text2);
+    user-select: none;
+  }
+  .color-pill.active {
+    border-color: currentColor;
+    color: var(--text);
+    background: var(--bg3);
+  }
+  .color-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Status filter */
+  .status-filter select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 12px;
+    padding: 6px 10px;
+    outline: none;
+    cursor: pointer;
+  }
+  .status-filter select:focus { border-color: var(--accent); }
+
+  .toolbar-right { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+
+  .counter {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text3);
+    white-space: nowrap;
+  }
+
+  /* ── COLUMNS PANEL ── */
+  .cols-panel {
+    display: none;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .cols-panel.open { display: flex; }
+  .col-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .col-toggle.on { background: var(--bg3); color: var(--text); border-color: var(--accent); }
+  .col-toggle input { display: none; }
+
+  /* ── TABLE ── */
+  .table-wrap {
+    overflow-x: auto;
+    padding: 0 24px 40px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+  }
+
+  thead th {
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 12px;
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    color: var(--text3);
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    user-select: none;
+    transition: color 0.15s;
+  }
+  thead th:hover { color: var(--text2); }
+  thead th.sorted { color: var(--accent); }
+  thead th .sort-arrow { margin-left: 4px; opacity: 0.5; }
+  thead th.sorted .sort-arrow { opacity: 1; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+  tbody tr:hover { background: var(--bg2); }
+  tbody tr.status-approved { border-left: 3px solid var(--green); }
+  tbody tr.status-revision  { border-left: 3px solid var(--yellow); }
+  tbody tr.status-rejected  { border-left: 3px solid var(--red); }
+
+  td {
+    padding: 10px 12px;
+    vertical-align: middle;
+    color: var(--text2);
+    max-width: 260px;
+  }
+
+  /* Still thumbnail */
+  td.td-still {
+    width: calc(var(--thumb-w) + 14px);
+    min-width: calc(var(--thumb-w) + 14px);
+    padding: 8px 12px;
+  }
+  .still-thumb {
+    width: var(--thumb-w);
+    height: var(--thumb-h);
+    object-fit: cover;
+    border-radius: 3px;
+    display: block;
+    background: var(--bg4);
+    cursor: zoom-in;
+    transition: opacity 0.15s, transform 0.15s;
+    border: 1px solid var(--border);
+  }
+  .still-thumb:hover { opacity: 0.85; transform: scale(1.03); }
+  .still-missing {
+    width: var(--thumb-w);
+    height: var(--thumb-h);
+    border-radius: 3px;
+    background: var(--bg4);
+    border: 1px dashed var(--border2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--text3);
+  }
+
+  /* Timecode */
+  td.td-tc {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* Marker name */
+  td.td-name {
+    font-weight: 500;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  /* Color badge */
+  .marker-color-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text2);
+  }
+
+  /* Status select */
+  .status-select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 11px;
+    padding: 4px 8px;
+    outline: none;
+    cursor: pointer;
+    width: 110px;
+  }
+  .status-select.approved { border-color: var(--green); color: var(--green); }
+  .status-select.revision { border-color: var(--yellow); color: var(--yellow); }
+  .status-select.rejected { border-color: var(--red);   color: var(--red); }
+
+  /* Comment input */
+  .comment-input {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    color: var(--text2);
+    font-family: var(--sans);
+    font-size: 12px;
+    padding: 4px 6px;
+    outline: none;
+    width: 100%;
+    min-width: 140px;
+    resize: none;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .comment-input:hover {
+    border-color: var(--border2);
+    background: var(--bg3);
+  }
+  .comment-input:focus {
+    border-color: var(--accent);
+    background: var(--bg3);
+    color: var(--text);
+  }
+  .comment-input::placeholder { color: var(--text3); font-style: italic; }
+
+  /* Text cells */
+  .cell-clip { font-family: var(--mono); font-size: 11px; white-space: nowrap; }
+  .cell-note { font-style: italic; color: var(--text3); }
+  .cell-meta { font-family: var(--mono); font-size: 11px; }
+
+  /* ── LIGHTBOX ── */
+  .lightbox {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 200;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .lightbox.open { display: flex; }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 80vh;
+    border-radius: 4px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.8);
+  }
+  .lightbox-meta {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text2);
+    text-align: center;
+  }
+  .lightbox-close {
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    background: none;
+    border: none;
+    color: var(--text2);
+    font-size: 28px;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .lightbox-close:hover { color: var(--text); }
+
+  /* ── EMPTY STATE ── */
+  .empty-state {
+    text-align: center;
+    padding: 80px 24px;
+    color: var(--text3);
+  }
+  .empty-state p { margin-top: 8px; font-size: 12px; }
+
+  /* ── LOAD SCREEN ── */
+  #load-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    z-index: 300;
+  }
+  #load-screen.hidden { display: none; }
+  .load-title {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text3);
+  }
+  .drop-zone {
+    border: 1px dashed var(--border2);
+    border-radius: 8px;
+    padding: 48px 64px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(76,126,255,0.05);
+  }
+  .drop-zone h2 {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .drop-zone p { color: var(--text3); font-size: 12px; margin-bottom: 20px; }
+  .drop-zone input[type=file] { display: none; }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* ── VIEW TOGGLE ── */
+  .view-toggle {
+    display: flex;
+    background: var(--bg4);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .view-btn {
+    background: none;
+    border: none;
+    color: var(--text3);
+    padding: 5px 10px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+  }
+  .view-btn.active { background: var(--bg2); color: var(--accent); }
+  .view-btn:hover:not(.active) { color: var(--text2); }
+
+  /* ── STORYBOARD ── */
+  .storyboard-wrap {
+    padding: 20px 24px 40px;
+    display: none;
+  }
+  .storyboard-wrap.visible { display: block; }
+  .storyboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
+    gap: 16px;
+  }
+  .sb-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 0.15s, transform 0.15s;
+    display: flex;
+    flex-direction: column;
+  }
+  .sb-card:hover { border-color: var(--border2); transform: translateY(-2px); }
+  .sb-card.status-approved { border-left: 3px solid var(--green); }
+  .sb-card.status-revision  { border-left: 3px solid var(--yellow); }
+  .sb-card.status-rejected  { border-left: 3px solid var(--red); }
+
+  .sb-thumb-wrap { position: relative; cursor: zoom-in; }
+  .sb-thumb {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    display: block;
+    background: var(--bg4);
+  }
+  .sb-thumb-missing {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: var(--bg4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+  }
+  .sb-tc {
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    font-family: var(--mono);
+    font-size: 10px;
+    background: rgba(0,0,0,0.72);
+    color: #fff;
+    padding: 2px 6px;
+    border-radius: 3px;
+    letter-spacing: 0.04em;
+  }
+
+  .sb-body {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+  }
+  .sb-name {
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .sb-note {
+    font-size: 11px;
+    color: var(--text3);
+    font-style: italic;
+    min-height: 14px;
+  }
+  .sb-color-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    color: var(--text3);
+  }
+  .sb-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin-top: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<!-- LOAD SCREEN -->
+<div id="load-screen">
+  <div class="load-title">PostFlows · Marker Sheet</div>
+  <div class="drop-zone" id="drop-zone">
+    <h2>Open CSV Export</h2>
+    <p>Drop the markers CSV file here, or click to browse</p>
+    <button class="btn btn-primary" onclick="document.getElementById('file-input').click()">
+      Choose CSV file
+    </button>
+    <input type="file" id="file-input" accept=".csv">
+  </div>
+  <div style="font-size:11px; color:var(--text3); max-width:380px; text-align:center; line-height:1.6;">
+    The CSV and stills folder must be in the same export folder generated by the script.
+    Images are loaded from the <code style="color:var(--text2)">stills/</code> subfolder automatically.
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+
+  <header>
+    <div class="logo">Post<span>Flows</span></div>
+    <div class="header-title" id="header-title">Marker Sheet</div>
+    <div class="header-meta" id="header-meta"></div>
+    <div class="header-spacer"></div>
+    <button class="btn btn-ghost" onclick="toggleCols()">⊞ Columns</button>
+    <button class="btn btn-primary" onclick="exportCSV()">↓ Export CSV</button>
+  </header>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="text" class="search-input" id="search-input" placeholder="Search all fields…">
+    </div>
+
+    <div class="color-filters" id="color-filters"></div>
+
+    <div class="status-filter">
+      <select id="status-filter-select" onchange="renderTable()">
+        <option value="all">All statuses</option>
+        <option value="—">No status</option>
+        <option value="Approved">Approved</option>
+        <option value="Revision">Revision</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+    </div>
+
+    <div class="toolbar-right">
+      <span class="counter" id="row-counter"></span>
+      <label style="display:flex;align-items:center;gap:8px;color:var(--text3);font-size:11px;white-space:nowrap;">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <input type="range" id="thumb-size" min="80" max="400" value="160" step="20"
+          style="width:90px;accent-color:var(--accent);cursor:pointer;">
+      </label>
+      <div class="view-toggle">
+        <button class="view-btn active" id="btn-table" title="Table view" onclick="setView('table')">☰</button>
+        <button class="view-btn" id="btn-board" title="Storyboard view" onclick="setView('board')">⊞</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cols-panel" id="cols-panel"></div>
+
+  <div class="table-wrap">
+    <table id="main-table">
+      <thead id="thead"></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty-state" id="empty-state" style="display:none">
+      <div style="font-size:32px">◎</div>
+      <p>No markers match the current filters.</p>
+    </div>
+  </div>
+
+  <div class="storyboard-wrap" id="storyboard-wrap">
+    <div class="storyboard-grid" id="storyboard-grid"></div>
+    <div class="empty-state" id="sb-empty-state" style="display:none">
+      <div style="font-size:32px">◎</div>
+      <p>No markers match the current filters.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">×</button>
+  <img id="lightbox-img" src="" alt="">
+  <div class="lightbox-meta" id="lightbox-meta"></div>
+</div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let allRows      = [];   // parsed CSV rows as objects
+let headers      = [];   // all column names from CSV
+let visibleCols  = new Set();
+let activeColors = new Set(['__all__']);
+let sortCol      = null;
+let sortDir      = 1;    // 1 = asc, -1 = desc
+let csvBaseName  = '';
+let stillsPrefix = 'stills/';
+
+// Columns always shown by default
+const DEFAULT_COLS = new Set([
+  'Marker Timecode','Marker Name','Marker Note','Marker Color',
+  'Clip Name','File Name','Resolution','FPS','Video Codec',
+  'Still Filename'
+]);
+
+// Columns that are interactive (not from CSV)
+const EXTRA_COLS = ['Status', 'Comment'];
+
+// Resolve marker color → CSS hex
+const RESOLVE_COLORS = {
+  Blue:'#4a90d9', Cyan:'#00c8c8', Green:'#2ecc71', Yellow:'#f0b429',
+  Red:'#e05555',  Pink:'#e87fa3', Purple:'#9b59b6', Fuchsia:'#c840c8',
+  Rose:'#ff6b8a', Lavender:'#9898e0', Sky:'#6bbcf0', Mint:'#50e0a0',
+  Lemon:'#e8e060', Sand:'#c8a870', Cocoa:'#a06840', Cream:'#e8e0c8',
+};
+
+// ─── CSV parser ───────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  // Strip BOM
+  if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+  // Normalise line endings
+  text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+  const rows = [];
+  let col = '', row = [], inQ = false;
+
+  for (let i = 0; i <= text.length; i++) {
+    const ch = i < text.length ? text[i] : '\n'; // sentinel newline at end
+    if (ch === '"') {
+      if (inQ && text[i + 1] === '"') { col += '"'; i++; }
+      else inQ = !inQ;
+    } else if (ch === ',' && !inQ) {
+      row.push(col); col = '';
+    } else if (ch === '\n' && !inQ) {
+      row.push(col); col = '';
+      if (row.some(c => c.trim() !== '')) rows.push(row);
+      row = [];
+    } else {
+      col += ch;
+    }
+  }
+
+  if (rows.length < 2) return { headers: [], rows: [] };
+  const hdrs = rows[0];
+  const dataRows = rows.slice(1).map(cells => {
+    const obj = { _status: '\u2014', _comment: '' };
+    hdrs.forEach((h, i) => { obj[h] = (cells[i] !== undefined ? cells[i] : '').trim(); });
+    return obj;
+  });
+  return { headers: hdrs, rows: dataRows };
+}
+
+// ─── Load file ────────────────────────────────────────────────────────────────
+function loadFile(file) {
+  csvBaseName = file.name.replace(/\.csv$/i, '');
+  const reader = new FileReader();
+  reader.onerror = () => alert('Error reading file: ' + reader.error);
+  reader.onload = e => {
+    let parsed;
+    try { parsed = parseCSV(e.target.result); }
+    catch(err) { alert('CSV parse error: ' + err.message); return; }
+    const { headers: hdrs, rows } = parsed;
+    if (!hdrs.length) { alert('Could not parse CSV — no headers found.'); return; }
+    headers  = hdrs;
+    allRows  = rows;
+
+    // Default visible columns
+    visibleCols = new Set();
+    headers.forEach(h => { if (DEFAULT_COLS.has(h)) visibleCols.add(h); });
+    // Always show Status + Comment
+    EXTRA_COLS.forEach(c => visibleCols.add(c));
+    // If nothing matched defaults, show first 8
+    if (visibleCols.size <= 2)
+      headers.slice(0, 8).forEach(h => visibleCols.add(h));
+
+    // Header title
+    document.getElementById('header-title').textContent =
+      csvBaseName.replace(/_/g,' ');
+    document.getElementById('header-meta').textContent =
+      allRows.length + ' markers';
+
+    buildColorFilters();
+    buildColsPanel();
+    renderTable();
+
+    document.getElementById('load-screen').classList.add('hidden');
+    document.getElementById('app').style.display = 'block';
+
+    // Try to restore saved comments/statuses
+    loadSaved();
+  };
+  reader.readAsText(file);
+}
+
+// ─── Color filters ────────────────────────────────────────────────────────────
+function buildColorFilters() {
+  const used = [...new Set(allRows.map(r => r['Marker Color']).filter(Boolean))].sort();
+  const wrap = document.getElementById('color-filters');
+  wrap.innerHTML = '';
+
+  const allPill = document.createElement('div');
+  allPill.className = 'color-pill active';
+  allPill.dataset.color = '__all__';
+  allPill.innerHTML = 'All';
+  allPill.onclick = () => toggleColorFilter('__all__');
+  wrap.appendChild(allPill);
+
+  used.forEach(color => {
+    const pill = document.createElement('div');
+    pill.className = 'color-pill';
+    pill.dataset.color = color;
+    const hex = RESOLVE_COLORS[color] || '#888';
+    pill.innerHTML = `<span class="color-dot" style="background:${hex}"></span>${color}`;
+    pill.onclick = () => toggleColorFilter(color);
+    wrap.appendChild(pill);
+  });
+}
+
+function toggleColorFilter(color) {
+  if (color === '__all__') {
+    activeColors = new Set(['__all__']);
+  } else {
+    activeColors.delete('__all__');
+    if (activeColors.has(color)) activeColors.delete(color);
+    else activeColors.add(color);
+    if (activeColors.size === 0) activeColors.add('__all__');
+  }
+  document.querySelectorAll('.color-pill').forEach(p => {
+    p.classList.toggle('active', activeColors.has(p.dataset.color));
+  });
+  renderTable();
+}
+
+// ─── Columns panel ────────────────────────────────────────────────────────────
+function buildColsPanel() {
+  const panel = document.getElementById('cols-panel');
+  panel.innerHTML = '';
+  const allCols = ['Still', ...headers, ...EXTRA_COLS];
+  allCols.forEach(col => {
+    const lbl = document.createElement('label');
+    lbl.className = 'col-toggle' + (visibleCols.has(col) || col === 'Still' && visibleCols.has('Still Filename') ? ' on' : '');
+    lbl.innerHTML = `<input type="checkbox" ${visibleCols.has(col) ? 'checked' : ''}
+      onchange="toggleCol('${col}', this.checked)">${col}`;
+    panel.appendChild(lbl);
+  });
+}
+
+function toggleCol(col, on) {
+  if (on) visibleCols.add(col); else visibleCols.delete(col);
+  document.querySelectorAll('.col-toggle').forEach(l => {
+    const inp = l.querySelector('input');
+    l.classList.toggle('on', inp.checked);
+  });
+  renderTable();
+}
+
+function toggleCols() {
+  document.getElementById('cols-panel').classList.toggle('open');
+}
+
+// ─── Filter & sort rows ───────────────────────────────────────────────────────
+function getFilteredRows() {
+  const q        = document.getElementById('search-input').value.toLowerCase();
+  const statusF  = document.getElementById('status-filter-select').value;
+
+  return allRows.filter(row => {
+    // Color filter
+    if (!activeColors.has('__all__') && !activeColors.has(row['Marker Color'])) return false;
+    // Status filter
+    if (statusF !== 'all' && row._status !== statusF) return false;
+    // Search
+    if (q) {
+      const haystack = Object.values(row).join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => {
+    if (!sortCol) return 0;
+    const av = (sortCol === '_status' ? a._status : sortCol === '_comment' ? a._comment : a[sortCol]) || '';
+    const bv = (sortCol === '_status' ? b._status : sortCol === '_comment' ? b._comment : b[sortCol]) || '';
+    return av.localeCompare(bv, undefined, { numeric: true }) * sortDir;
+  });
+}
+
+// ─── Render table ─────────────────────────────────────────────────────────────
+function renderTable() {
+  if (currentView === 'board') { renderBoard(); return; }
+  const rows = getFilteredRows();
+  document.getElementById('row-counter').textContent =
+    rows.length + ' of ' + allRows.length;
+
+  // Build visible col list
+  const showStill = visibleCols.has('Still') ||
+    (visibleCols.has('Still Filename') && headers.includes('Still Filename'));
+
+  const cols = [];
+  // Status + Comment идут первыми (удобно для импорта)
+  if (visibleCols.has('Status'))  cols.push({ key: '_status',  label: 'Status' });
+  if (visibleCols.has('Comment')) cols.push({ key: '_comment', label: 'Comment' });
+  if (showStill) cols.push({ key: '__still__', label: 'Still' });
+  headers.forEach(h => {
+    if (h === 'Still Filename' || h === 'Still Path') return;
+    if (visibleCols.has(h)) cols.push({ key: h, label: h });
+  });
+  if (visibleCols.has('Still Filename') && headers.includes('Still Filename'))
+    cols.push({ key: 'Still Filename', label: 'Still Filename' });
+
+  // THEAD
+  const thead = document.getElementById('thead');
+  thead.innerHTML = '';
+  const tr = document.createElement('tr');
+  cols.forEach(col => {
+    const th = document.createElement('th');
+    th.dataset.key = col.key;
+    const isSorted = sortCol === col.key;
+    th.className = isSorted ? 'sorted' : '';
+    const arrow = isSorted ? (sortDir === 1 ? ' ↑' : ' ↓') : '';
+    th.innerHTML = col.label + (arrow ? `<span class="sort-arrow">${arrow}</span>` : '');
+    if (col.key !== '__still__') {
+      th.onclick = () => {
+        if (sortCol === col.key) sortDir *= -1;
+        else { sortCol = col.key; sortDir = 1; }
+        renderTable();
+      };
+    }
+    tr.appendChild(th);
+  });
+  thead.appendChild(tr);
+
+  // TBODY
+  const tbody = document.getElementById('tbody');
+  tbody.innerHTML = '';
+
+  if (rows.length === 0) {
+    document.getElementById('empty-state').style.display = 'block';
+    document.getElementById('main-table').style.display  = 'none';
+    return;
+  }
+  document.getElementById('empty-state').style.display = 'none';
+  document.getElementById('main-table').style.display  = '';
+
+  rows.forEach((row, ri) => {
+    const tr = document.createElement('tr');
+    const statusClass = { 'Approved':'status-approved','Revision':'status-revision','Rejected':'status-rejected' }[row._status] || '';
+    tr.className = statusClass;
+    tr.dataset.idx = allRows.indexOf(row);
+
+    cols.forEach(col => {
+      const td = document.createElement('td');
+
+      if (col.key === '__still__') {
+        td.className = 'td-still';
+        const fname = row['Still Filename'] || '';
+        if (fname) {
+          const img = document.createElement('img');
+          img.className = 'still-thumb';
+          img.src = stillsPrefix + fname;
+          img.alt = fname;
+          img.loading = 'lazy';
+          img.onclick = () => openLightbox(stillsPrefix + fname,
+            (row['Marker Timecode'] || '') + '  ' + (row['Marker Name'] || ''));
+          img.onerror = () => {
+            const miss = document.createElement('div');
+            miss.className = 'still-missing';
+            miss.textContent = 'no still';
+            td.replaceChild(miss, img);
+          };
+          td.appendChild(img);
+        } else {
+          const miss = document.createElement('div');
+          miss.className = 'still-missing';
+          miss.textContent = 'no still';
+          td.appendChild(miss);
+        }
+
+      } else if (col.key === 'Marker Timecode') {
+        td.className = 'td-tc';
+        td.textContent = row[col.key] || '';
+
+      } else if (col.key === 'Marker Name') {
+        td.className = 'td-name';
+        td.textContent = row[col.key] || '';
+
+      } else if (col.key === 'Marker Note') {
+        td.className = 'cell-note';
+        td.textContent = row[col.key] || '';
+
+      } else if (col.key === 'Marker Color') {
+        const color = row[col.key] || '';
+        const hex   = RESOLVE_COLORS[color] || '#888';
+        td.innerHTML = `<span class="marker-color-badge">
+          <span class="color-dot" style="background:${hex}"></span>${color}
+        </span>`;
+
+      } else if (col.key === '_status') {
+        const sel = document.createElement('select');
+        sel.className = 'status-select';
+        ['—','Approved','Revision','Rejected'].forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v; opt.textContent = v;
+          if (row._status === v) opt.selected = true;
+          sel.appendChild(opt);
+        });
+        sel.onchange = () => {
+          row._status = sel.value;
+          sel.className = 'status-select ' + sel.value.toLowerCase();
+          tr.className = { 'Approved':'status-approved','Revision':'status-revision',
+            'Rejected':'status-rejected' }[sel.value] || '';
+          autosave();
+        };
+        sel.className = 'status-select ' + row._status.toLowerCase();
+        td.appendChild(sel);
+
+      } else if (col.key === '_comment') {
+        const ta = document.createElement('textarea');
+        ta.className = 'comment-input';
+        ta.placeholder = 'Add comment…';
+        ta.rows = 2;
+        ta.value = row._comment || '';
+        ta.oninput = () => { row._comment = ta.value; autosave(); };
+        td.appendChild(ta);
+
+      } else if (col.key === 'Clip Name' || col.key === 'File Name') {
+        td.className = 'cell-clip';
+        td.textContent = row[col.key] || '';
+
+      } else {
+        td.className = 'cell-meta';
+        td.textContent = row[col.key] || '';
+      }
+
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+}
+
+// ─── Lightbox ─────────────────────────────────────────────────────────────────
+function openLightbox(src, meta) {
+  document.getElementById('lightbox-img').src  = src;
+  document.getElementById('lightbox-meta').textContent = meta;
+  document.getElementById('lightbox').classList.add('open');
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('open');
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeLightbox();
+});
+
+// ─── Autosave to localStorage ─────────────────────────────────────────────────
+function autosave() {
+  if (!csvBaseName) return;
+  const saved = allRows.map(r => ({ _status: r._status, _comment: r._comment }));
+  try { localStorage.setItem('mse_' + csvBaseName, JSON.stringify(saved)); } catch(e) {}
+}
+
+function loadSaved() {
+  try {
+    const raw = localStorage.getItem('mse_' + csvBaseName);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    saved.forEach((s, i) => {
+      if (allRows[i]) {
+        allRows[i]._status  = s._status  || '—';
+        allRows[i]._comment = s._comment || '';
+      }
+    });
+  } catch(e) {}
+}
+
+// ─── Export CSV ───────────────────────────────────────────────────────────────
+function exportCSV() {
+  const rows = getFilteredRows();
+  const cols = ['Status', 'Comment', ...headers];
+
+  const escape = v => {
+    const s = String(v == null ? '' : v);
+    return s.includes(',') || s.includes('"') || s.includes('\n')
+      ? '"' + s.replace(/"/g, '""') + '"' : s;
+  };
+
+  let csv = '\uFEFF' + cols.map(escape).join(',') + '\n';
+  rows.forEach(row => {
+    csv += cols.map(c => {
+      if (c === 'Status')  return escape(row._status);
+      if (c === 'Comment') return escape(row._comment);
+      return escape(row[c] || '');
+    }).join(',') + '\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = csvBaseName + '_reviewed.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ─── File input / drag-drop ───────────────────────────────────────────────────
+document.getElementById('file-input').addEventListener('change', e => {
+  if (e.target.files[0]) loadFile(e.target.files[0]);
+});
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', e => {
+  e.preventDefault();
+  dz.classList.remove('dragover');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.csv')) loadFile(f);
+});
+
+document.getElementById('search-input').addEventListener('input', () => {
+  if (currentView === 'table') renderTable(); else renderBoard();
+});
+
+// ─── View switching ───────────────────────────────────────────────────────────
+let currentView = 'table';
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btn-table').classList.toggle('active', v === 'table');
+  document.getElementById('btn-board').classList.toggle('active', v === 'board');
+  document.querySelector('.table-wrap').style.display       = v === 'table' ? '' : 'none';
+  document.getElementById('cols-panel').style.display       = v === 'table' ? '' : 'none';
+  document.getElementById('storyboard-wrap').classList.toggle('visible', v === 'board');
+  if (v === 'board') renderBoard(); else renderTable();
+}
+
+// ─── Storyboard render ────────────────────────────────────────────────────────
+// карточка шириной ~ thumb-size слайдера, минимум 180px
+function getCardWidth() {
+  const w = parseInt(getComputedStyle(document.documentElement)
+    .getPropertyValue('--thumb-w')) || 160;
+  return Math.max(w, 180) + 'px';
+}
+
+function renderBoard() {
+  const rows = getFilteredRows();
+  document.getElementById('row-counter').textContent =
+    rows.length + ' of ' + allRows.length;
+
+  const grid = document.getElementById('storyboard-grid');
+  const sbEmpty = document.getElementById('sb-empty-state');
+  grid.innerHTML = '';
+
+  // sync card width to thumb slider
+  const cardW = getCardWidth();
+  document.documentElement.style.setProperty('--card-w', cardW);
+
+  if (rows.length === 0) { sbEmpty.style.display = 'block'; return; }
+  sbEmpty.style.display = 'none';
+
+  rows.forEach(row => {
+    const fname  = row['Still Filename'] || '';
+    const tc     = row['Marker Timecode'] || '';
+    const name   = row['Marker Name'] || '';
+    const note   = row['Marker Note'] || '';
+    const color  = row['Marker Color'] || '';
+    const hex    = RESOLVE_COLORS[color] || '#888';
+    const statusClass = { 'Approved':'status-approved','Revision':'status-revision',
+      'Rejected':'status-rejected' }[row._status] || '';
+
+    const card = document.createElement('div');
+    card.className = 'sb-card ' + statusClass;
+
+    // Thumbnail
+    const thumbWrap = document.createElement('div');
+    thumbWrap.className = 'sb-thumb-wrap';
+    if (fname) {
+      const img = document.createElement('img');
+      img.className = 'sb-thumb';
+      img.src = stillsPrefix + fname;
+      img.alt = fname;
+      img.loading = 'lazy';
+      img.onclick = () => openLightbox(stillsPrefix + fname, tc + '  ' + name);
+      img.onerror = () => {
+        const miss = document.createElement('div');
+        miss.className = 'sb-thumb-missing';
+        miss.textContent = 'no still';
+        thumbWrap.replaceChild(miss, img);
+      };
+      thumbWrap.appendChild(img);
+    } else {
+      const miss = document.createElement('div');
+      miss.className = 'sb-thumb-missing';
+      miss.textContent = 'no still';
+      thumbWrap.appendChild(miss);
+    }
+    // TC overlay
+    if (tc) {
+      const tcEl = document.createElement('div');
+      tcEl.className = 'sb-tc';
+      tcEl.textContent = tc;
+      thumbWrap.appendChild(tcEl);
+    }
+    card.appendChild(thumbWrap);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'sb-body';
+
+    const nameEl = document.createElement('div');
+    nameEl.className = 'sb-name';
+    nameEl.textContent = name || '—';
+    body.appendChild(nameEl);
+
+    if (note) {
+      const noteEl = document.createElement('div');
+      noteEl.className = 'sb-note';
+      noteEl.textContent = note;
+      body.appendChild(noteEl);
+    }
+
+    if (color) {
+      const colorRow = document.createElement('div');
+      colorRow.className = 'sb-color-row';
+      colorRow.innerHTML = `<span class="color-dot" style="background:${hex}"></span>${color}`;
+      body.appendChild(colorRow);
+    }
+
+    // Controls: Status + Comment
+    const controls = document.createElement('div');
+    controls.className = 'sb-controls';
+
+    const sel = document.createElement('select');
+    sel.className = 'status-select';
+    ['—','Approved','Revision','Rejected'].forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      if (row._status === v) opt.selected = true;
+      sel.appendChild(opt);
+    });
+    sel.onchange = () => {
+      row._status = sel.value;
+      sel.className = 'status-select ' + sel.value.toLowerCase();
+      card.className = 'sb-card ' + ({'Approved':'status-approved','Revision':'status-revision',
+        'Rejected':'status-rejected'}[sel.value] || '');
+      autosave();
+    };
+    sel.className = 'status-select ' + row._status.toLowerCase();
+
+    const ta = document.createElement('textarea');
+    ta.className = 'comment-input';
+    ta.placeholder = 'Add comment…';
+    ta.rows = 2;
+    ta.value = row._comment || '';
+    ta.oninput = () => { row._comment = ta.value; autosave(); };
+
+    controls.appendChild(sel);
+    controls.appendChild(ta);
+    body.appendChild(controls);
+    card.appendChild(body);
+    grid.appendChild(card);
+  });
+}
+
+document.getElementById('thumb-size').addEventListener('input', function() {
+  const w = parseInt(this.value);
+  const h = Math.round(w / (16/9));
+  document.documentElement.style.setProperty('--thumb-w', w + 'px');
+  document.documentElement.style.setProperty('--thumb-h', h + 'px');
+  document.documentElement.style.setProperty('--card-w', Math.max(w, 180) + 'px');
+  if (currentView === 'board') renderBoard();
+});
+</script>
+</body>
+</html>
